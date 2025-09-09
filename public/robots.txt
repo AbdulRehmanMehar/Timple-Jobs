@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://timpl-next-js.vercel.app/sitemap.xml
