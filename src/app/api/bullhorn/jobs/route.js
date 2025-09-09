@@ -18,7 +18,7 @@ export async function GET() {
       })
     }
 
-    const countPerPage = 240
+    const countPerPage = 500
     const jobsQuery = encodeURIComponent('(isOpen:1) AND (isDeleted:0)')
     const fields = 'id,title,employmentType,address(city,state),clientCorporation(id,name),publicDescription,publishedCategory(id,name),salary,salaryUnit,dateAdded,dateLastPublished'
 

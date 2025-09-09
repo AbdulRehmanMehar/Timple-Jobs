@@ -8,7 +8,7 @@ import BeatLoader from "react-spinners/BeatLoader"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-export default function JobBoardUI() {
+export default function JobBoardUI({ initialJobs = [] }) {
   const [filters, setFilters] = useState({
     categories: [],
     cities: [],
@@ -58,27 +58,50 @@ export default function JobBoardUI() {
   const [globalSearchValue, setGlobalSearchValue] = useState("")
   const [isSearching, setIsSearching] = useState(false)
 
-  useEffect(() => {
-    const fetchJobsApi = async () => {
-      setJobLoading(true)
-      try {
-        const res = await fetch("/api/bullhorn/jobs")
-        const json = await res.json()
-        if (!json.error) {
-          setJobListings(json.jobs || [])
-          setJobsLength(json.jobs?.length || 0)
-        } else {
-          console.error("Failed to load jobs:", json.error)
-        }
-      } catch (error) {
-        console.error("Error fetching jobs:", error)
-      } finally {
-        setJobLoading(false)
-      }
-    }
+  // useEffect(() => {
+  //   const fetchJobsApi = async () => {
+  //     setJobLoading(true)
+  //     try {
+  //       const res = await fetch("/api/bullhorn/jobs")
+  //       const json = await res.json()
+  //       if (!json.error) {
+  //         setJobListings(json.jobs || [])
+  //         setJobsLength(json.jobs?.length || 0)
+  //       } else {
+  //         console.error("Failed to load jobs:", json.error)
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching jobs:", error)
+  //     } finally {
+  //       setJobLoading(false)
+  //     }
+  //   }
 
-    fetchJobsApi()
-  }, [])
+  //   fetchJobsApi()
+  // }, [])
+   useEffect(() => {
+    if (initialJobs.length === 0) {
+      const fetchJobsApi = async () => {
+        setJobLoading(true)
+        try {
+          const res = await fetch("/api/bullhorn/jobs")
+          const json = await res.json()
+          if (!json.error) {
+            setJobListings(json.jobs || [])
+            setJobsLength(json.jobs?.length || 0)
+          } else {
+            console.error("Failed to load jobs:", json.error)
+          }
+        } catch (error) {
+          console.error("Error fetching jobs:", error)
+        } finally {
+          setJobLoading(false)
+        }
+      }
+
+      fetchJobsApi()
+    }
+  }, [initialJobs.length])
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -856,25 +879,27 @@ export default function JobBoardUI() {
                   <BeatLoader color="#23baa1" className="text-center" />
                 ) : (
                   <div className={`${!isMobile ? "pr-1 sm:pr-2" : ""} pr-1 sm:pr-2`}>
-                    {data.map((item) => (
-                      <div
-                        key={String(item.id || item.name)}
-                        className={`flex items-center space-x-2 sm:space-x-3 ${isMobile ? "py-2 sm:py-3" : "py-1"}`}
-                      >
-                        <input
-                          type="checkbox"
-                          id={`${title.toLowerCase()}-${item.id || item.name}-${isMobile ? "mobile" : "desktop"}`}
-                          className={`${isMobile ? "h-4 w-4 sm:h-5 sm:w-5" : "h-3 w-3 lg:h-4 lg:w-4"} text-[#23baa1] border-gray-300 rounded focus:ring-[#23baa1] cursor-pointer`}
-                          checked={selected.includes(item.id)}
-                          onChange={() => handler(item.id, item.name)}
-                        />
-                        <label
-                          htmlFor={`${title.toLowerCase()}-${item.id || item.name}-${isMobile ? "mobile" : "desktop"}`}
-                          className={`${isMobile ? "text-sm sm:text-base" : "text-xs lg:text-sm"} font-medium text-[#7d789b] cursor-pointer flex-1 leading-tight`}
+                       {data.map((item) => (
+                      (typeof item.id !== "undefined" && typeof item.name !== "undefined") ? (
+                        <div
+                          key={String(item.id || item.name)}
+                          className={`flex items-center space-x-2 sm:space-x-3 ${isMobile ? "py-2 sm:py-3" : "py-1"}`}
                         >
-                          {item.name} ({item.count})
-                        </label>
-                      </div>
+                          <input
+                            type="checkbox"
+                            id={`${title.toLowerCase()}-${item.id || item.name}-${isMobile ? "mobile" : "desktop"}`}
+                            className={`${isMobile ? "h-4 w-4 sm:h-5 sm:w-5" : "h-3 w-3 lg:h-4 lg:w-4"} text-[#23baa1] border-gray-300 rounded focus:ring-[#23baa1] cursor-pointer`}
+                            checked={selected.includes(item.id)}
+                            onChange={() => handler(item.id, item.name)}
+                          />
+                          <label
+                            htmlFor={`${title.toLowerCase()}-${item.id || item.name}-${isMobile ? "mobile" : "desktop"}`}
+                            className={`${isMobile ? "text-sm sm:text-base" : "text-xs lg:text-sm"} font-medium text-[#7d789b] cursor-pointer flex-1 leading-tight`}
+                          >
+                            {item.name} ({item.count})
+                          </label>
+                        </div>
+                      ) : null
                     ))}
                   </div>
                 )}
