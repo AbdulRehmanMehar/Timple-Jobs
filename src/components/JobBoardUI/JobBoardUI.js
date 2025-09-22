@@ -7,6 +7,7 @@ import { Banknote } from "lucide-react"
 import BeatLoader from "react-spinners/BeatLoader"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 
 export default function JobBoardUI({ initialJobs = [] }) {
   const [filters, setFilters] = useState({
@@ -19,6 +20,9 @@ export default function JobBoardUI({ initialJobs = [] }) {
     salaryOptions: [],
     datePostedOptions: [],
   })
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [loading, setLoading] = useState(true)
   const [jobListings, setJobListings] = useState([])
   const [jobLoading, setJobLoading] = useState(true)
@@ -777,9 +781,38 @@ export default function JobBoardUI({ initialJobs = [] }) {
     }
   }
 
-  const totalPages = Math.ceil(sortedJobs.length / jobsPerPage)
+    const totalPages = Math.ceil(sortedJobs.length / jobsPerPage)
   const paginatedJobs = sortedJobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage)
 
+  // Initialize currentPage from URL (?page=...)
+  useEffect(() => {
+    const pageParam = searchParams?.get("page")
+    if (!pageParam) return
+    const pageNum = Number.parseInt(pageParam, 10)
+    if (Number.isFinite(pageNum) && pageNum >= 1 && pageNum !== currentPage) {
+      setCurrentPage(pageNum)
+    }
+  }, [searchParams])
+
+  // Keep URL in sync with currentPage, preserve other query params
+  useEffect(() => {
+    if (!pathname) return
+    const params = new URLSearchParams(searchParams?.toString() || "")
+    params.set("page", String(currentPage))
+    const nextUrl = `${pathname}?${params.toString()}`
+    router.replace(nextUrl, { scroll: false })
+  }, [currentPage, pathname])
+
+  // Clamp currentPage to valid range when data changes
+  useEffect(() => {
+    if (totalPages === 0 && currentPage !== 1) {
+      setCurrentPage(1)
+      return
+    }
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages])
   const hasActiveFilters = () => {
     return (
       selectedCategories.length > 0 ||
@@ -1422,11 +1455,15 @@ export default function JobBoardUI({ initialJobs = [] }) {
                               </span>
                             </div>
                           )}
-                          {job.salary !== "" && job.customFloat1 !== "" ? (
+                          {job.salary !== "" || job.customFloat1 !== "" ? (
                             <div className="flex items-center gap-1">
                               <Banknote className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                               <span className="truncate">
-                                ${job.salary}/yr - ${job.customFloat1}/yr
+                                {job.salary && job.customFloat1
+                                  ? `$${job.salary}/yr - $${job.customFloat1}/yr`
+                                  : job.salary
+                                    ? `$${job.salary}/yr`
+                                    : `$${job.customFloat1}/yr`}
                               </span>
                             </div>
                           ) : (

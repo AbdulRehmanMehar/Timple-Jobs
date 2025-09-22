@@ -97,9 +97,9 @@ export default async function JobPage({ params }) {
                 "@type": "Place",
                 address: {
                     "@type": "PostalAddress",
-                    addressLocality: job?.location || "Unknown",
-                    addressRegion: job?.state || "",
-                    addressCountry: job?.country || "US",
+                    addressLocality: job?.location || "Unknown", // city
+                    addressRegion: job?.state || "", // state/province
+                    postalCode: job?.zip || "", // ✅ correct property
                 },
             },
             ...(job?.salary &&
@@ -156,7 +156,7 @@ export default async function JobPage({ params }) {
                                     <span className="absolute bottom-0 left-0 w-8 sm:w-10 h-0.5 bg-[#23baa1]" />
                                 </h2>
                                 <ul className="space-y-3 sm:space-y-4">
-                                    {job.salary !== "" && job.customFloat1 !== "" ? (
+                                    {job.salary !== "" || job.customFloat1 !== "" ? (
                                         <li className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-200">
                                             <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center shrink-0 mt-1">
                                                 <BriefcaseBusiness className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-800" />
@@ -164,7 +164,13 @@ export default async function JobPage({ params }) {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="font-semibold text-gray-800 text-sm sm:text-base">Salary</div>
-                                                <div className="text-gray-600 text-xs sm:text-sm break-words">${job.salary}/yr - ${job.customFloat1}/yr</div>
+                                                <div className="text-gray-600 text-xs sm:text-sm break-words">
+                                                    {job.salary && job.customFloat1
+                                                        ? `$${job.salary}/yr - $${job.customFloat1}/yr`
+                                                        : job.salary
+                                                            ? `$${job.salary}/yr`
+                                                            : `$${job.customFloat1}/yr`}
+                                                </div>
                                             </div>
                                         </li>
                                     ) : (
@@ -191,7 +197,7 @@ export default async function JobPage({ params }) {
                                             </div>
                                         </li>
                                     )}
-                                    {job.location !== "" && (
+                                    {(job.location !== "" || job.state !== "") && (
                                         <li className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-200">
                                             <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center shrink-0 mt-1">
                                                 <BriefcaseBusiness className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-800" />
@@ -199,7 +205,19 @@ export default async function JobPage({ params }) {
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="font-semibold text-gray-800 text-sm sm:text-base">Location</div>
-                                                <div className="text-gray-600 text-xs sm:text-sm break-words">{job.location}</div>
+                                                <div className="text-gray-600 text-xs sm:text-sm break-words">{job.location},{job.state}</div>
+                                            </div>
+                                        </li>
+                                    )}
+                                                                        {job.zip !== "" && (
+                                        <li className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-200">
+                                            <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center shrink-0 mt-1">
+                                                <BriefcaseBusiness className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-800" />
+                                                <Check className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 text-[#23baa1] fill-[#23baa1]" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="font-semibold text-gray-800 text-sm sm:text-base">Zip Code</div>
+                                                <div className="text-gray-600 text-xs sm:text-sm break-words">{job.zip}</div>
                                             </div>
                                         </li>
                                     )}

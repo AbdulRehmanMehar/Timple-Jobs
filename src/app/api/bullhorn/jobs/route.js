@@ -20,7 +20,7 @@ export async function GET() {
 
     const countPerPage = 500
     const jobsQuery = encodeURIComponent('(isOpen:1) AND (isDeleted:0)')
-    const fields = 'id,title,employmentType,address(city,state),clientCorporation(id,name),publicDescription,publishedCategory(id,name),salary,salaryUnit,dateAdded,dateLastPublished'
+  const fields = 'id,title,employmentType,customFloat1,address(city,state),clientCorporation(id,name),publicDescription,publishedCategory(id,name),salary,salaryUnit,dateAdded,dateLastPublished,customFloat2'
 
     const baseUrl = `https://public-rest${process.env.BULLHORN_SWIMLANE}.bullhornstaffing.com/rest-services/${process.env.BULLHORN_CORP_TOKEN}/search/JobOrder`
     const firstUrl = `${baseUrl}?start=0&query=${jobsQuery}&fields=${fields}&count=${countPerPage}&sort=-dateLastPublished&showTotalMatched=true`
@@ -70,7 +70,10 @@ export async function GET() {
       return 'Just now'
     }
 
-    const jobs = allJobs.map(job => {
+  // Filter out jobs that have a value for customFloat2
+  allJobs = allJobs.filter(job => job.customFloat2 == null)
+
+  const jobs = allJobs.map(job => {
       const descriptionHtml = job.publicDescription || ''
       const descriptionText = htmlToText(descriptionHtml, { wordwrap: false }).replace(/\n+/g, ' ')
 
@@ -86,6 +89,7 @@ export async function GET() {
         type: job.employmentType,
         city: job.address?.city || '',
         state: job.address?.state || '',
+        customFloat1: job.customFloat1 || '',
         employer: job.clientCorporation?.name || '',
         clientCorporation: job.clientCorporation
           ? { id: job.clientCorporation.id, name: job.clientCorporation.name }

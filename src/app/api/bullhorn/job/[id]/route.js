@@ -9,7 +9,7 @@ export async function GET(request, context) {
   }
 
   try {
-    const url = `https://public-rest41.bullhornstaffing.com/rest-services/4NF2TD/query/JobBoardPost?where=(id=${jobId})&fields=customFloat1,customFloat2,customFloat3,submissions(id),customText7,id,title,publishedCategory(id,name),address(city,state,countryName),employmentType,dateLastPublished,publicDescription,isOpen,isPublic,isDeleted,payRate,publishedZip,salary,salaryUnit`
+    const url = `https://public-rest41.bullhornstaffing.com/rest-services/4NF2TD/query/JobBoardPost?where=(id=${jobId})&fields=customFloat1,customFloat2,customFloat3,submissions(id),customText7,id,title,publishedCategory(id,name),address(city,state,zip),employmentType,dateLastPublished,publicDescription,isOpen,isPublic,isDeleted,payRate,publishedZip,salary,salaryUnit`
 
     const res = await fetch(url)
     const json = await res.json()
@@ -50,7 +50,7 @@ export async function GET(request, context) {
       type: data.employmentType || 'Unknown',
       location: data.address?.city || 'Not specified',
       state: data.address?.state || 'Not specified',
-      country: data.address?.countryName || 'Not specified',
+      zip: data.address?.zip || 'Not specified',
       experience: data.customText7 || '',
       salary: data.salary || '',
       payRate: data.payRate || '',
@@ -65,7 +65,6 @@ export async function GET(request, context) {
       isOpen: data.isOpen,
       isPublic: data.isPublic,
       isDeleted: data.isDeleted,
-      zip: data.publishedZip || '',
       submissions: submissionCount
     })
   } catch (error) {
