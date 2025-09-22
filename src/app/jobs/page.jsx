@@ -89,40 +89,40 @@ export default async function Page() {
   const jobsListSchema =
     jobs.length > 0
       ? {
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          name: "Available Jobs at Timpl",
-          description: "Browse current job opportunities at Timpl across various industries",
-          numberOfItems: jobs.length,
-          itemListElement: jobs.map((job, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            item: {
-              "@type": "JobPosting",
-              "@id": `${baseUrl}/job/${job.id}`,
-              title: job.title,
-              description: job.publicDescription || job.title || "Job opportunity at Timpl",
-              url: `${baseUrl}/job/${job.id}`,
-              hiringOrganization: {
-                "@type": "Organization",
-                name: "Timpl",
-                url: baseUrl,
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Available Jobs at Timpl",
+        description: "Browse current job opportunities at Timpl across various industries",
+        numberOfItems: jobs.length,
+        itemListElement: jobs.map((job, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "JobPosting",
+            "@id": `${baseUrl}/job/${job.id}`,
+            title: job.title,
+            description: job.publicDescription || job.title || "Job opportunity at Timpl",
+            url: `${baseUrl}/job/${job.id}`,
+            hiringOrganization: {
+              "@type": "Organization",
+              name: "Timpl",
+              url: baseUrl,
+            },
+            datePosted: job.dateAdded || new Date().toISOString().split('T')[0],
+            validThrough: job.validThrough || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+            jobLocation: {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: job?.location || "Unknown", // city
+                addressRegion: job?.state || "", // state/province
+                postalCode: job?.zip || "", // ✅ correct property
               },
-              datePosted: job.dateAdded || new Date().toISOString().split('T')[0],
-              validThrough: job.validThrough || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-              jobLocation: {
-                "@type": "Place",
-                address: {
-                  "@type": "PostalAddress",
-                  addressLocality: job.city || "",
-                  addressRegion: job.state || "",
-                  addressCountry: "US"
-                }
-              },
-              employmentType: job.type || "FULL_TIME",
-            }
-          })),
-        }
+            },
+            employmentType: job.type || "FULL_TIME",
+          }
+        })),
+      }
       : null
 
   // ✅ Build BreadcrumbList schema
@@ -159,7 +159,7 @@ export default async function Page() {
             }}
           />
         )}
-        
+
         {/* Inject Breadcrumb JSON-LD */}
         <script
           type="application/ld+json"
