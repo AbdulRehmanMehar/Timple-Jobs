@@ -168,8 +168,8 @@ export default async function Page() {
           }}
         />
 
-        {/* Job Board UI with server-side jobs */}
-        <JobBoardUI jobs={jobs} />
+  {/* Job Board UI with server-side jobs */}
+  <JobBoardUI initialJobs={jobs} />
 
         <Footer />
       </div>

@@ -24,8 +24,8 @@ export default function JobBoardUI({ initialJobs = [] }) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const [loading, setLoading] = useState(true)
-  const [jobListings, setJobListings] = useState([])
-  const [jobLoading, setJobLoading] = useState(true)
+  const [jobListings, setJobListings] = useState(initialJobs)
+  const [jobLoading, setJobLoading] = useState(initialJobs.length === 0)
   const [currentPage, setCurrentPage] = useState(1)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const [sortBy, setSortBy] = useState("new")
@@ -62,50 +62,35 @@ export default function JobBoardUI({ initialJobs = [] }) {
   const [globalSearchValue, setGlobalSearchValue] = useState("")
   const [isSearching, setIsSearching] = useState(false)
 
-  // useEffect(() => {
-  //   const fetchJobsApi = async () => {
-  //     setJobLoading(true)
-  //     try {
-  //       const res = await fetch("/api/bullhorn/jobs")
-  //       const json = await res.json()
-  //       if (!json.error) {
-  //         setJobListings(json.jobs || [])
-  //         setJobsLength(json.jobs?.length || 0)
-  //       } else {
-  //         console.error("Failed to load jobs:", json.error)
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching jobs:", error)
-  //     } finally {
-  //       setJobLoading(false)
-  //     }
-  //   }
-
-  //   fetchJobsApi()
-  // }, [])
-   useEffect(() => {
-    if (initialJobs.length === 0) {
-      const fetchJobsApi = async () => {
-        setJobLoading(true)
-        try {
-          const res = await fetch("/api/bullhorn/jobs")
-          const json = await res.json()
-          if (!json.error) {
-            setJobListings(json.jobs || [])
-            setJobsLength(json.jobs?.length || 0)
-          } else {
-            console.error("Failed to load jobs:", json.error)
-          }
-        } catch (error) {
-          console.error("Error fetching jobs:", error)
-        } finally {
-          setJobLoading(false)
-        }
-      }
-
-      fetchJobsApi()
+  // Initialize from server-provided initialJobs; fallback to client fetch if none
+  useEffect(() => {
+    if (initialJobs && initialJobs.length > 0) {
+      setJobListings(initialJobs)
+      setJobsLength(initialJobs.length)
+      setJobLoading(false)
+      return
     }
-  }, [initialJobs.length])
+
+    const fetchJobsApi = async () => {
+      setJobLoading(true)
+      try {
+        const res = await fetch("/api/bullhorn/jobs")
+        const json = await res.json()
+        if (!json.error) {
+          setJobListings(json.jobs || [])
+          setJobsLength(json.jobs?.length || 0)
+        } else {
+          console.error("Failed to load jobs:", json.error)
+        }
+      } catch (error) {
+        console.error("Error fetching jobs:", error)
+      } finally {
+        setJobLoading(false)
+      }
+    }
+
+    fetchJobsApi()
+  }, [initialJobs])
 
   useEffect(() => {
     const fetchFilters = async () => {
@@ -813,6 +798,31 @@ export default function JobBoardUI({ initialJobs = [] }) {
       setCurrentPage(totalPages)
     }
   }, [totalPages])
+
+  // When returning from a job detail page, scroll back to the clicked job
+  useEffect(() => {
+    // Only runs on client
+    const lastId = typeof window !== 'undefined' ? sessionStorage.getItem('lastViewedJobId') : null
+    if (!lastId) return
+
+    // If the job is present on the current page, scroll to it and highlight briefly
+    const hasJobOnPage = paginatedJobs?.some((j) => String(j.id) === String(lastId))
+    if (!hasJobOnPage) return
+
+    // Defer to ensure DOM is painted
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`job-${lastId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Brief highlight to draw attention
+        el.classList.add('ring-2', 'ring-[#23baa1]/70')
+        setTimeout(() => {
+          el.classList.remove('ring-2', 'ring-[#23baa1]/70')
+        }, 1600)
+      }
+      sessionStorage.removeItem('lastViewedJobId')
+    })
+  }, [paginatedJobs])
   const hasActiveFilters = () => {
     return (
       selectedCategories.length > 0 ||
@@ -1430,7 +1440,14 @@ export default function JobBoardUI({ initialJobs = [] }) {
                     <Link
                       key={job.id}
                       href={`/job/${job.id}`}
-                      className="block bg-white cursor-pointer border border-gray-200 shadow-sm p-3 sm:p-4 lg:p-5 flex flex-col gap-3 sm:gap-4 rounded-lg hover:shadow-md transition-shadow mx-4 sm:mx-0"
+                      id={`job-${job.id}`}
+                      data-job-id={job.id}
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem('lastViewedJobId', String(job.id))
+                        } catch {}
+                      }}
+                      className="bg-white cursor-pointer border border-gray-200 shadow-sm p-3 sm:p-4 lg:p-5 flex flex-col gap-3 sm:gap-4 rounded-lg hover:shadow-md transition-shadow mx-4 sm:mx-0"
                     >
                       <div className="flex-grow">
                         {/* Header: Title + Job Type */}
