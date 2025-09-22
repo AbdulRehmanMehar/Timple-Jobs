@@ -120,6 +120,24 @@ export default async function Page() {
               },
             },
             employmentType: job.type || "FULL_TIME",
+            ...(job?.salary && {
+              baseSalary: {
+                "@type": "MonetaryAmount",
+                currency: job?.salaryCurrency || "USD",
+                value: {
+                  "@type": "QuantitativeValue",
+                  unitText: (job?.salaryUnit || "YEAR").toUpperCase(),
+                  ...(job?.customFloat1
+                    ? {
+                        minValue: Number(job.salary),
+                        maxValue: Number(job.customFloat1),
+                      }
+                    : {
+                        value: Number(job.salary),
+                      }),
+                },
+              },
+            }),
           }
         })),
       }
