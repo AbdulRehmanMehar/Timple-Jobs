@@ -87,7 +87,7 @@ export default async function JobPage({ params }) {
             validThrough: new Date(
                 Date.now() + 30 * 24 * 60 * 60 * 1000
             ).toISOString(),
-            employmentType: "FULL_TIME",
+            employmentType: job.type || "FULL_TIME",
             hiringOrganization: {
                 "@type": "Organization",
                 name: "Timpl",
@@ -224,6 +224,18 @@ export default async function JobPage({ params }) {
                                             <div className="min-w-0 flex-1">
                                                 <div className="font-semibold text-gray-800 text-sm sm:text-base">Zip Code</div>
                                                 <div className="text-gray-600 text-xs sm:text-sm break-words">{job.zip}</div>
+                                            </div>
+                                        </li>
+                                    )}
+                                                   {job.type !== "" && (
+                                        <li className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-200">
+                                            <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center shrink-0 mt-1">
+                                                <BriefcaseBusiness className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-800" />
+                                                <Check className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 text-[#23baa1] fill-[#23baa1]" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="font-semibold text-gray-800 text-sm sm:text-base">EmploymentType</div>
+                                                <div className="text-gray-600 text-xs sm:text-sm break-words">{job.type}</div>
                                             </div>
                                         </li>
                                     )}
