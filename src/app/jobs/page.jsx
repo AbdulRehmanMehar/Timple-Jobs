@@ -114,7 +114,7 @@ export default async function Page() {
               "@type": "Place",
               address: {
                 "@type": "PostalAddress",
-                addressLocality: job?.location || "Unknown", // city
+                addressLocality: job?.city || "Unknown", // city
                 addressRegion: job?.state || "", // state/province
                 postalCode: job?.zip || "", // ✅ correct property
               },
