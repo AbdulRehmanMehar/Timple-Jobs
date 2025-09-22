@@ -68,6 +68,7 @@ export default async function JobPage({ params }) {
             return notFound()
         }
         const job = await res.json()
+        console.log("jobsssss", job)
 
         // ✅ JSON-LD schema
         const jobPostingSchema = {
@@ -209,7 +210,7 @@ export default async function JobPage({ params }) {
                                             </div>
                                         </li>
                                     )}
-                                                                        {job.zip !== "" && (
+                                    {job.zip !== "" && job.zip !== "Not specified" && (
                                         <li className="flex items-start gap-3 sm:gap-4 pb-3 sm:pb-4 border-b border-gray-200">
                                             <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center shrink-0 mt-1">
                                                 <BriefcaseBusiness className="w-4 h-4 sm:w-6 sm:h-6 text-indigo-800" />
