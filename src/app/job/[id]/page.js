@@ -103,16 +103,21 @@ export default async function JobPage({ params }) {
                     postalCode: job?.zip || "", // ✅ correct property
                 },
             },
-            ...(job?.salary &&
-                job?.customFloat1 && {
+            ...(job?.salary && {
                 baseSalary: {
                     "@type": "MonetaryAmount",
-                    currency: "USD",
+                    currency: job?.salaryCurrency || "USD",
                     value: {
                         "@type": "QuantitativeValue",
-                        minValue: Number(job.salary),
-                        maxValue: Number(job.customFloat1),
-                        unitText: job.salaryUnit || "YEAR",
+                        unitText: (job?.salaryUnit || "YEAR").toUpperCase(),
+                        ...(job?.customFloat1
+                            ? {
+                                  minValue: Number(job.salary),
+                                  maxValue: Number(job.customFloat1),
+                              }
+                            : {
+                                  value: Number(job.salary),
+                              }),
                     },
                 },
             }),
