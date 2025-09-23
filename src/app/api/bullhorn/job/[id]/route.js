@@ -14,6 +14,7 @@ export async function GET(request, context) {
     const res = await fetch(url)
     const json = await res.json()
     const data = json?.data?.[0]
+    // j
 
     if (!data || json.errorMessage) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
