@@ -1468,7 +1468,7 @@ export default function JobBoardUI({ initialJobs = [] }) {
                             <div className="flex items-center gap-1">
                               <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
                               <span className="truncate">
-                                {job.city}, {job.state}
+                                {job.state}, {job.city}
                               </span>
                             </div>
                           )}
